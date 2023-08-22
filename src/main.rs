@@ -7,31 +7,32 @@ fn main() -> io::Result<()> {
     let mut buffer = String::new();
 
     loop {
-        
-        print!("{} ", "$");
+        print!("$ "); // Print the prompt
         stdout.flush()?;
-        
 
-        let stdin = io::stdin(); // Create a new instance of io::Stdin for each iteration
+        let stdin = io::stdin();
+        let keys = stdin.keys(); // Capture the keys iterator outside of the loop
 
-        for key in stdin.keys() {
+        for key in keys {
             match key? {
                 Key::Ctrl('x') => {
                     println!("\nExiting program");
                     return Ok(());
                 }
-              
+                Key::Ctrl(_) => {
+                   // print!("$ ");
+
+                    // Ignore other Ctrl key combinations
+                }
                 Key::Char('\n') => {
                     // Process the input buffer here
                     if !buffer.is_empty() {
+                        println!("You entered: {}", buffer);
 
-                        //println!("You entered: {}", buffer);
-                        
-                        // Clear the buffer after processing
+                        // Call the add function with the input buffer
                         add(buffer.clone());
+
                         buffer.clear();
-                        
-                       // println!("{} ", "$");
                     }
                 }
                 Key::Char(c) => {
@@ -39,16 +40,13 @@ fn main() -> io::Result<()> {
                 }
                 _ => {}
             }
+            // Print the prompt on the same line
+            print!("$ ");
+            stdout.flush()?;
         }
-        print!("{} ", "$");
-
     }
 }
 
-
-fn add(a : String) -> () {
+fn add(a: String) {
     println!("Func returned ---> {}", a);
-    print!("{} ", "$");
-
-
 }
