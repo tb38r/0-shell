@@ -10,43 +10,41 @@ fn main() -> io::Result<()> {
         print!("$ "); // Print the prompt
         stdout.flush()?;
 
-        let stdin = io::stdin();
-        let keys = stdin.keys(); // Capture the keys iterator outside of the loop
+        let mut input = String::new();
+        io::stdin().read_line(&mut input)?;
 
-        for key in keys {
-            match key? {
-                Key::Ctrl('x') => {
-                    println!("\nExiting program");
-                    return Ok(());
-                }
-                Key::Ctrl(_) => {
-                   // print!("$ ");
+        if input.is_empty() {
+            continue; // Skip processing and re-prompt on empty input
+        }
 
-                    // Ignore other Ctrl key combinations
-                }
-                Key::Char('\n') => {
-                    // Process the input buffer here
-                    if !buffer.is_empty() {
-                        println!("You entered: {}", buffer);
+        let trimmed_input = input.trim(); // Remove leading/trailing whitespace
 
-                        // Call the add function with the input buffer
-                        add(buffer.clone());
-
-                        buffer.clear();
-                    }
-                }
-                Key::Char(c) => {
-                    buffer.push(c);
-                }
-                _ => {}
+        if let Some(key) = parse_ctrl_key(&trimmed_input) {
+            if key == 'x' {
+                println!("Exiting program");
+                break;
             }
-            // Print the prompt on the same line
-            print!("$ ");
-            stdout.flush()?;
+        } else {
+            println!("You entered: {}", trimmed_input);
+           // add(trimmed_input.to_string());
         }
     }
+
+    Ok(())
 }
 
-fn add(a: String) {
-    println!("Func returned ---> {}", a);
+// fn add(a: String) {
+//     println!("Func returned ---> {}", a);
+// }
+
+fn parse_ctrl_key(input: &str) -> Option<char> {
+    let mut chars = input.chars();
+    if let Some('^') = chars.next() {
+        if let Some(ctrl_char) = chars.next() {
+            if chars.next().is_none() && ctrl_char.is_ascii_lowercase() {
+                return Some(ctrl_char);
+            }
+        }
+    }
+    None
 }
