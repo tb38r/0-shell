@@ -1,6 +1,5 @@
 use std::io::{self, Write};
-use termion::event::Key;
-use termion::input::TermRead;
+
 
 fn main() -> io::Result<()> {
     let mut stdout = io::stdout();
@@ -11,23 +10,35 @@ fn main() -> io::Result<()> {
         stdout.flush()?;
 
         let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
-
-        if input.is_empty() {
-            continue; // Skip processing and re-prompt on empty input
-        }
-
-        let trimmed_input = input.trim(); // Remove leading/trailing whitespace
-
-        if let Some(key) = parse_ctrl_key(&trimmed_input) {
-            if key == 'x' {
-                println!("Exiting program");
-                break;
+        match io::stdin().read_line(&mut input) {
+            Ok(0) => {
+                print!("{}", input);
+                break
             }
-        } else {
-            println!("You entered: {}", trimmed_input);
-           // add(trimmed_input.to_string());
+            Ok(_)=> {
+                if input.is_empty() {
+                    continue; // Skip processing and re-prompt on empty input
+                }
+        
+                let trimmed_input = input.trim(); // Remove leading/trailing whitespace
+        
+                if let Some(key) = parse_ctrl_key(&trimmed_input) {
+                    if key == 'x' {
+                        println!("Exiting program");
+                        break;
+                    }
+                } else {
+                    println!("You entered: {}", trimmed_input);
+                   // add(trimmed_input.to_string());
+                }
+            }
+            Err(_)=>{
+                return  Ok(());
+            }
         }
+
+
+
     }
 
     Ok(())
